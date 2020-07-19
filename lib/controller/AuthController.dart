@@ -1,23 +1,23 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:winninbets/constants/ApiUrl.dart';
 import 'package:winninbets/models/AuthToken.dart';
 import 'package:winninbets/models/User.dart';
 import 'package:winninbets/models/UserLogin.dart';
 
-const String apiUrl = 'http://192.168.43.69:8000/api/users/';
 
-void register(User user) async {
+register(User user) async {
   // register a given user from the User Object supplied. Encode the Object to
   // json and send the json string as a body parameter to the the request to the api
-  var response = await http.post("${apiUrl}register/", body: jsonEncode(user)); // attempt to get a response from the server
-  // TODO: Perform actual validation of a successful register attempt
-
+  var response = await http.post("${ApiUrl}users/register/", body: jsonEncode(user)); // attempt to get a response from the server
+  return response.statusCode;
 }
 
 Future<AuthToken> login(UserLogin userLogin) async {
 
-  var response = await http.post("${apiUrl}login/", body: jsonEncode(userLogin));
+  var response = await http.post("${ApiUrl}users/login/", body: jsonEncode(userLogin));
   // attempt to login via the api endpoint /login/.
 
   // If a response status code of 200 is returned, then perform the user logic for decoding the token returned.
@@ -32,4 +32,16 @@ Future<AuthToken> login(UserLogin userLogin) async {
   } else {
     return null;
   }
+}
+
+Future<dynamic> getUser() async{
+  var prefs = await SharedPreferences.getInstance();
+  var token = await prefs.get('token');
+
+  var response = await http.get('${ApiUrl}users/profile', headers: {
+    'Authorization': 'Bearer ${token}'
+  });
+
+  return json.decode(response.body);
+
 }

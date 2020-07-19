@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:winninbets/constants/ApiUrl.dart';
 import 'package:winninbets/constants/colors.dart';
 import 'package:winninbets/controller/AuthController.dart';
 import 'package:winninbets/models/User.dart';
@@ -9,7 +10,9 @@ import 'package:winninbets/views/components/ButtonRounded.dart';
 import 'package:winninbets/views/components/InputBox.dart';
 import 'package:winninbets/views/components/InputLabel.dart';
 import 'package:winninbets/views/components/LinkLabel.dart';
+import 'package:winninbets/views/screens/HomeScreen.dart';
 import 'package:winninbets/views/screens/LoginScreen.dart';
+import 'package:http/http.dart' as http;
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -19,7 +22,6 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   bool checkBoxValue = false;
   String _location, _telephone, _email, _firstname, _lastname, _password, _confirmpass = "";
-
 
   @override
   Widget build(BuildContext context) {
@@ -166,43 +168,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ],
                             ),
                             Center(
-                              child: ButtonRounded(text: "Sign up", onTap: () {
-
+                              child: ButtonRounded(text: "Sign up", onTap: () async {
                                 if(_password == _confirmpass) {
                                   var user = new User(
-                                    _firstname,_lastname,_email,_telephone,_location,_password
+                                    _firstname,_lastname,_location,_telephone,_email,_password
                                   );
 
-                                  register(user);
-                                }
-
-                                return showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text("You're now part of the community", style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w700
-                                      ),),
-                                      content: SvgPicture.asset('assets/icons/ic_check.svg', width: 40,),
-                                      actions: <Widget>[
-                                        Container(
-                                          child: FlatButton(
-                                            child: Text("Done", style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 18,
-                                              color: clrPrimary,
+                                  var response = await http.post("${ApiUrl}users/register/", body: jsonEncode(user));
+                                  var code = response.statusCode;
+                                  if (code == 200) {
+                                    return showDialog(
+                                        context: context,
+                                        barrierDismissible: false,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            title: Text("Registration Successful", style: TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w700
                                             ),),
-                                            onPressed: (){
-                                              Navigator.of(context).pop();
-                                            },
-                                            padding: EdgeInsets.all(10),
-                                          ),
-                                        )
-                                      ],
+                                            content: SvgPicture.asset('assets/icons/ic_check.svg', width: 40,),
+                                            actions: <Widget>[
+                                              Container(
+                                                child: FlatButton(
+                                                  child: Text("Done", style: TextStyle(
+                                                    fontWeight: FontWeight.w700,
+                                                    fontSize: 18,
+                                                    color: clrPrimary,
+                                                  ),),
+                                                  onPressed: (){
+                                                    Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                                      return LoginScreen();
+                                                    }));
+                                                  },
+                                                  padding: EdgeInsets.all(10),
+                                                ),
+                                              )
+                                            ],
+                                          );
+                                        }
                                     );
                                   }
+                                }
+                                return Center(
+                                  child: CircularProgressIndicator(),
                                 );
                               },),
                             ),

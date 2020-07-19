@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:winninbets/constants/ApiUrl.dart';
 import 'package:winninbets/models/Prediction.dart';
 
-const String apiUrl = 'http://192.168.43.69:8000/api/tips/';
 
 //Get Todays Tips: TODO: filter by date
 
 Future<List<dynamic>> getTips() async {
-  var response = await http.get(apiUrl);
+  var response = await http.get('${ApiUrl}tips');
   if(response.statusCode == 200) {
     final items = json.decode(response.body).cast<Map<String, dynamic>>();
     List<dynamic> tips = items.map((json) {
@@ -23,8 +23,21 @@ Future<List<dynamic>> getTips() async {
 }
 
 // Get all tips
-Future<List<dynamic>> getAllTips() async {
-  var response = await http.get(apiUrl);
+Future<List<dynamic>> getRecent() async {
+  var response = await http.get('${ApiUrl}tips/recent');
+  if(response.statusCode == 200) {
+    final items = json.decode(response.body).cast<Map<String, dynamic>>();
+    List<dynamic> tips = items.map((json) {
+      return json['fields'];
+    }).toList();
+    return tips;
+  } else {
+    return null;
+  }
+}
+
+Future<List<dynamic>> getFeatured() async {
+  var response = await http.get('${ApiUrl}tips/featured');
   if(response.statusCode == 200) {
     final items = json.decode(response.body).cast<Map<String, dynamic>>();
     List<dynamic> tips = items.map((json) {

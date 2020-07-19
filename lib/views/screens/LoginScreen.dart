@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:winninbets/constants/ApiUrl.dart';
 import 'package:winninbets/constants/colors.dart';
 import 'package:winninbets/controller/AuthController.dart';
 import 'package:winninbets/models/AuthToken.dart';
@@ -77,18 +79,18 @@ class LoginScreen extends StatelessWidget {
                             Center(
                               child: ButtonRounded(text: "Login", onTap: () async{
                                 var userToLogin = new UserLogin(_email, _password);
-                                var loginResponse = await http.post('http://192.168.43.69:8000/api/users/login/', body: json.encode(userToLogin));
+                                var loginResponse = await http.post('${ApiUrl}users/login/', body: json.encode(userToLogin));
                                 if(loginResponse.statusCode == 200) {
                                   var authToken = new AuthToken.fromJson(json.decode(loginResponse.body));
 
-//                                  await fss.write(key: 'token', value: authToken.token);
+                                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                                  await prefs.setString('token', authToken.token);
                                   Navigator.push(context, MaterialPageRoute(
                                     builder: (context){
                                       return HomeScreen();
                                     }
                                   ));
                                 }
-
                               },),
                             ),
                             Container(

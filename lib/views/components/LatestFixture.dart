@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class LatestFixture extends StatelessWidget {
+  final home_team,away_team, date, prediction, prediction_odds, home_odds, draw_odds, away_odds;
   const LatestFixture({
-    Key key,
+    Key key, this.home_team, this.away_team, this.date, this.prediction, this.prediction_odds, this.home_odds, this.draw_odds, this.away_odds,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final DateFormat formatter = DateFormat('dd-MM-yyyy');
     return Container(
       padding: EdgeInsets.only(top:10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text("14.30 hrs", style: TextStyle(
+          Text(formatter.format(DateTime.parse(date)), style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w700
           ),),
@@ -20,7 +23,7 @@ class LatestFixture extends StatelessWidget {
           Row(
             children: <Widget>[
               Expanded(
-                child: Text("Norwich", style: TextStyle(
+                child: Text(home_team, style: TextStyle(
                     fontWeight: FontWeight.w900
                 ),),
               ),
@@ -28,7 +31,7 @@ class LatestFixture extends StatelessWidget {
                 child: Text("VS"),
               ),
               Expanded(
-                child: Text("Brighton Albion", style: TextStyle(
+                child: Text(away_team, style: TextStyle(
                     fontWeight: FontWeight.w900
                 ),),
               ),
@@ -38,18 +41,18 @@ class LatestFixture extends StatelessWidget {
           Row(
             children: <Widget>[
               Expanded(
-                child: Text("1.56"),
+                child: Text(home_odds),
               ),
               Expanded(
-                child: Text("2.78"),
+                child: Text(draw_odds),
               ),
               Expanded(
-                child: Text("1.23"),
+                child: Text(away_odds),
               ),
             ],
           ),
           SizedBox(height: 7.5,),
-          Text("Pick: Home Win | 1.56"),
+          Text("Pick: ${prediction} | ${prediction_odds}"),
           Divider(
             color: Colors.black12,
             height: 20,

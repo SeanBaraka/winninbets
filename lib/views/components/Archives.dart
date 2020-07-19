@@ -13,7 +13,7 @@ class Archives extends StatelessWidget {
       body: Container(
           padding: EdgeInsets.all(10),
           child: FutureBuilder(
-            future: getAllTips(),
+            future: getTips(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return ListView.builder(
@@ -78,7 +78,7 @@ class Archives extends StatelessWidget {
                 );
               } else {
                 return Center(
-                  child: CircularProgressIndicator(),
+                  child: CircularProgressIndicator(strokeWidth: 2,),
                 );
               }
             }

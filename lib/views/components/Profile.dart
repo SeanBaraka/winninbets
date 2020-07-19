@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:winninbets/constants/colors.dart';
+import 'package:winninbets/controller/AuthController.dart';
 import 'package:winninbets/views/components/LinkLabel.dart';
 
 class Profile extends StatelessWidget {
@@ -11,83 +12,118 @@ class Profile extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text("Remember to stay \nsafe during these \ndifficult times", style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w600
-              ),),
-              SizedBox(height: 20,),
-              Text("Sean Baraka", style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700
-              ),),
-              SizedBox(height: 10,),
-              Text("Email Address: \tseanbaraka@gmail.com", style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 16
-              ),),
-              SizedBox(height: 5,),
-              Text("Phone Number: \t+254 752233532",style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16
-              ),),
-              SizedBox(height: 5,),
-              Text("Location: \tMachakos, Kenya",style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16
-              ),),
-              SizedBox(height: 20,),
-              Text("VIP Member", style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 22
-              ),),
-              SizedBox(height: 10,),
-              Text("Activated: 5-08-2020 ~25 days remaining", style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                  color: clrSuccess
-              ),),
-              SizedBox(height: 40,),
-              Text("Refer Friends to get\ndiscounted VIP prices", style: TextStyle(
-                  fontSize: 16
-              ),),
-              SizedBox(height: 10,),
-              Text("Friends referred", style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18
-              ),),
-              Text("12",style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 56
-              ),),
-              SizedBox(height: 20,),
-              Text("Referral link", style: TextStyle(
-                  fontSize: 16
-              ),),
-              LinkLabel(labelText: "http://winninbets.co.ke/FE2123",),
-              SizedBox(height: 10,),
-              Container(
-                width: MediaQuery.of(context).size.width * 0.34,
-                height: 40,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(40)),
-                  child: FlatButton(
-                    padding: EdgeInsets.only(left: 25),
-                    color: Colors.black12,
-                    onPressed: () {  },
-                    child: Row(
+          child: FutureBuilder(
+            future: getUser(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                var data = snapshot.data;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    data['is_vip'] ? Text("VIP Member", style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 22
+                  ),) : Text('Regular Member',style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 22)),
+                    SizedBox(height: 10,),
+                    Text('${data['first_name']}\t${data['last_name']}', style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700
+                    ),),
+                    SizedBox(height: 10,),
+                    Text("Phone Number: \t${data['telephone']}",style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16
+                    ),),
+                    SizedBox(height: 5,),
+                    Text("Location: \t${data['location']}",style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16
+                    ),),
+                    SizedBox(height: 20,),
+
+                    SizedBox(height: 10,),
+                    data['is_vip'] ? Text("Activated: 5-08-2020 ~25 days remaining", style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        color: clrSuccess
+                    ),): Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        SvgPicture.asset('assets/icons/ic_copy.svg'),
-                        SizedBox(width: 10,),
-                        Text("Copy Link")
+                        Text('Upgrade to VIP', style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20
+                        )),
+                        SizedBox(height: 10,),
+                        Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width * 0.75,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.all(Radius.circular(50)),
+                            child: RaisedButton(
+                              color: clrSuccess,
+                              onPressed: () {  },
+                              child: Text("Subscribe to VIP \$15/m", style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700
+                              ),),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10,)
                       ],
                     ),
+                    data['is_vip'] ? SizedBox(height: 40,) : SizedBox(height: 0,),
+                    Text("Refer Friends to get\ndiscounted VIP prices", style: TextStyle(
+                        fontSize: 16
+                    ),),
+                    SizedBox(height: 10,),
+                    Text("Friends referred", style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18
+                    ),),
+                    Text(data['referrals'].toString(),style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 56
+                    ),),
+                    SizedBox(height: 20,),
+                    Text("Referral link", style: TextStyle(
+                        fontSize: 16
+                    ),),
+                    LinkLabel(labelText: "http://winninbets.co.ke/FE2123",),
+                    SizedBox(height: 10,),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.34,
+                      height: 40,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(40)),
+                        child: FlatButton(
+                          padding: EdgeInsets.only(left: 25),
+                          color: Colors.black12,
+                          onPressed: () {  },
+                          child: Row(
+                            children: <Widget>[
+                              SvgPicture.asset('assets/icons/ic_copy.svg'),
+                              SizedBox(width: 10,),
+                              Text("Copy Link")
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                );
+              } else {
+                return Container(
+                  height: MediaQuery.of(context).size.height * 0.75,
+                  child: Center(
+                    child: CircularProgressIndicator(strokeWidth: 2,),
                   ),
-                ),
-              )
-            ],
+                );
+              }
+            },
           ),
         ),
       ),

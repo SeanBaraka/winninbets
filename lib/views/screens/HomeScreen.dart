@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:winninbets/constants/colors.dart';
 import 'package:winninbets/views/components/Archives.dart';
+import 'package:winninbets/views/components/MenuItems.dart';
 import 'package:winninbets/views/components/Profile.dart';
 import 'package:winninbets/views/screens/FeaturedTips.dart';
 
@@ -20,11 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   var _homeWidgets = <Widget>[
-    BottomSheet(
-      builder: (context) {
-        return Text("Hello there");
-      }, onClosing: () {  },
-    ),
+    MenuItems(),
     FeaturedTips(),
     Archives(),
     Profile(),

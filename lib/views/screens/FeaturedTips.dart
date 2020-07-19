@@ -2,15 +2,66 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart';
+import 'package:winninbets/constants/ApiUrl.dart';
 import 'package:winninbets/constants/colors.dart';
 import 'package:winninbets/controller/TipsController.dart';
 import 'package:winninbets/views/components/InputBox.dart';
 import 'package:winninbets/views/components/LatestFixture.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
-class FeaturedTips extends StatelessWidget {
+class FeaturedTips extends StatefulWidget {
+  @override
+  _FeaturedTipsState createState() => _FeaturedTipsState();
+}
+
+class _FeaturedTipsState extends State<FeaturedTips> {
   var date = DateTime.now();
+
   var response = getTips();
+
+  var totalOdds = "";
+
+  var winAmount = 0;
+
+  var currencies = <DropdownMenuItem> [
+    DropdownMenuItem(
+      child: Text("KES"),
+      value: 'KES',
+    ),
+    DropdownMenuItem(
+      child: Text("USD"),
+      value: 'USD',
+    ),
+    DropdownMenuItem(
+      child: Text("EUR"),
+      value: 'EUR',
+    ),
+    DropdownMenuItem(
+      child: Text("UGX"),
+      value: 'UGX',
+    ),
+    DropdownMenuItem(
+      child: Text("TZS"),
+      value: 'TZS',
+    ),
+    DropdownMenuItem(
+      child: Text("ZMW"),
+      value: 'ZMW',
+    ),
+    DropdownMenuItem(
+      child: Text("GHS"),
+      value: 'GHS',
+    ),
+  ];
+
+  Future<String> getTotalOdds() async {
+    var response = await http.get('${ApiUrl}tips/odds');
+    totalOdds = response.body;
+
+    return response.body;
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,72 +83,73 @@ class FeaturedTips extends StatelessWidget {
                     ),),
                     Text("Premier League"),
                     SizedBox(height: 30,),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Expanded(
-                          child: Column(
+                    FutureBuilder(
+                      future: getFeatured(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData) {
+                          var data = snapshot.data[0];
+                          return Column(
                             children: <Widget>[
-                              Image.asset('assets/images/wolves.png'),
-                              Text("Wolves", style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w700
-                              ),)
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            children: <Widget>[
-                              Text("1930 hrs"),
-                              Text("vs"),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            children: <Widget>[
-                              Image.asset("assets/images/arsenal.png"),
-                              Text("Arsenal",style: TextStyle(
-                                  fontSize: 22,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  Expanded(
+                                    child: Column(
+                                      children: <Widget>[
+                                        Text('Home'),
+                                        Text(data['home_team'], style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w700
+                                        ),)
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      children: <Widget>[
+                                        Text(DateFormat('H:mm').format(DateTime.parse(data['match_date']))),
+                                        Text("vs"),
+                                      ],
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Column(
+                                      children: <Widget>[
+                                        Text("Away"), // Use Logo and not just some weird name
+                                        Text(data['away_team'],style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w700
+                                        ),)
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Text("Pick", style: TextStyle(
+                                  fontSize: 16
+                              ),),
+                              SizedBox(height: 5,),
+                              Text("${data['prediction']} | ${data['prediction_odds']}", style: TextStyle(
+                                  fontSize: 15,
                                   fontWeight: FontWeight.w700
                               ),)
                             ],
-                          ),
-                        )
-                      ],
+                          );
+                        } else {
+                          return Container(
+                            width: 20,
+                            height: 20,
+                            child: Center(
+                              child: CircularProgressIndicator(strokeWidth: 1,),
+                            ),
+                          );
+                        }
+                      },
                     ),
-                    Text("Pick", style: TextStyle(
-                      fontSize: 16
-                    ),),
-                    SizedBox(height: 5,),
-                    Text("Home Win | 1.24", style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700
-                    ),)
                   ],
                 ),
               ),
               SizedBox(height: 20,),
-              Container(
-                height: MediaQuery.of(context).size.height * 0.5,
-                child: FutureBuilder(
-                  future: getTips(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return ListView.builder(
-                        itemCount: snapshot.data.length,
-                        itemBuilder: (context, index) {
-                          return LatestFixture();
-                        });
-                    } else {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                  },
-                ),
-              ),
               Container(
                 decoration: BoxDecoration(
                   color: clrBg,
@@ -112,18 +164,36 @@ class FeaturedTips extends StatelessWidget {
                 ),
                 padding: EdgeInsets.all(20),
                 width: MediaQuery.of(context).size.width * 0.9,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text("Today"),
-                      Column(
-                        children: <Widget>[
-                          LatestFixture(),
-                          LatestFixture(),
-                          LatestFixture()
-                        ],
-                      )
-                    ],
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child: FutureBuilder(
+                    future: getRecent(),
+                    builder: (context, snapshot) {
+                      var data = snapshot.data;
+                      if (snapshot.hasData) {
+                        return ListView.builder(
+                            itemCount: snapshot.data.length,
+                            itemBuilder: (context, index) {
+                              return LatestFixture(
+                                home_team:data[index]['home_team'],
+                                away_team:data[index]['away_team'],
+                                date:data[index]['match_date'],
+                                prediction:data[index]['prediction'],
+                                prediction_odds:data[index]['prediction_odds'],
+                                home_odds:data[index]['home_odds'],
+                                draw_odds:data[index]['draw_odds'],
+                                away_odds:data[index]['away_odds'],
+                              );
+                            });
+                      } else {
+                        return Container(
+                          width: 20,
+                          height: 20,
+                          child: Center(
+                            child: CircularProgressIndicator( strokeWidth: 2,),
+                          ),
+                        );
+                      }
+                    },
                   ),
               ),
               Container(
@@ -142,10 +212,15 @@ class FeaturedTips extends StatelessWidget {
                                   fontSize: 24,
                                   fontWeight: FontWeight.w900
                                 ),),
-                                Text("3.40", style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w900
-                                ),)
+                                FutureBuilder(
+                                  future: getTotalOdds(),
+                                  builder: (context, snapshot){
+                                    return Text(totalOdds, style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900
+                                    ),);
+                                  },
+                                )
                               ],
                             ),
                           ),
@@ -158,26 +233,33 @@ class FeaturedTips extends StatelessWidget {
                                 ),),
                                 Row(
                                   children: <Widget>[
-                                    DropdownButton(
-                                      items: [
-                                        DropdownMenuItem(
-                                          child: Text("KES"),
-                                        ),
-                                        DropdownMenuItem(
-                                          child: Text("USD"),
-                                        )
-                                      ], onChanged: (value) {  },
-                                    ),
-                                    Container(
-                                      width: MediaQuery.of(context).size.width * 0.25,
-                                      height: 30,
-                                      decoration: BoxDecoration(border: Border.all(color: clrLighter, width: 1, style: BorderStyle.solid)
+                                    ClipRect(
+                                      child: DropdownButton(
+                                        value: currencies[0].value,
+                                        items: currencies,
+                                        onChanged: (value) {
+                                          // TODO: Change currencies
+                                      },
                                       ),
-                                      padding: EdgeInsets.only(left: 5),
+                                    ),
+                                    Expanded(
                                       child: Container(
-                                        child: TextField(
-                                          decoration: InputDecoration(
-                                            border: InputBorder.none,
+                                        width: MediaQuery.of(context).size.width * 0.25,
+                                        height: 30,
+                                        decoration: BoxDecoration(border: Border.all(color: clrLighter, width: 1, style: BorderStyle.solid)
+                                        ),
+                                        padding: EdgeInsets.only(left: 5),
+                                        child: Container(
+                                          child: TextField(
+                                            decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                            ),
+                                            keyboardType: TextInputType.number,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                winAmount = int.parse(value);
+                                              });
+                                            },
                                           ),
                                         ),
                                       ),
@@ -196,15 +278,18 @@ class FeaturedTips extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           SizedBox(height: 15,),
-                          Text("Place a bet and win", style: TextStyle(
+                          Text("Place a bet and win" ,style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w700
                           ),),
                           SizedBox(height: 5,),
-                          Text("Ksh. 340", style: TextStyle(
+                          totalOdds != null && totalOdds.isNotEmpty ? Text('KES ${(winAmount* double.parse(totalOdds)).toString()}', style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w700
-                          ),)
+                          ),) : Text("--", style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700
+                          ))
                         ],
                       ),
                     )
