@@ -4,6 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:winninbets/constants/colors.dart';
 import 'package:winninbets/controller/AuthController.dart';
 import 'package:winninbets/views/components/LinkLabel.dart';
+import 'package:winninbets/views/components/Subscribe.dart';
+import 'package:winninbets/views/screens/LoginScreen.dart';
 
 class Profile extends StatelessWidget {
   @override
@@ -20,7 +22,7 @@ class Profile extends StatelessWidget {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    data['is_vip'] ? Text("VIP Member", style: TextStyle(
+                    data['is_vip'] == true ? Text("VIP Member", style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 22
                   ),) : Text('Regular Member',style: TextStyle(
@@ -44,38 +46,12 @@ class Profile extends StatelessWidget {
                     SizedBox(height: 20,),
 
                     SizedBox(height: 10,),
-                    data['is_vip'] ? Text("Activated: 5-08-2020 ~25 days remaining", style: TextStyle(
+                    data['is_vip'] ==true ? Text("Activated: on ${data['made_vip']}", style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
                         color: clrSuccess
-                    ),): Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text('Upgrade to VIP', style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 20
-                        )),
-                        SizedBox(height: 10,),
-                        Container(
-                          height: 50,
-                          width: MediaQuery.of(context).size.width * 0.75,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.all(Radius.circular(50)),
-                            child: RaisedButton(
-                              color: clrSuccess,
-                              onPressed: () {  },
-                              child: Text("Subscribe to VIP \$15/m", style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700
-                              ),),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 10,)
-                      ],
-                    ),
-                    data['is_vip'] ? SizedBox(height: 40,) : SizedBox(height: 0,),
+                    ),) : Subscribe(),
+                    data['is_vip'] == true ? SizedBox(height: 40,) : SizedBox(height: 0,),
                     Text("Refer Friends to get\ndiscounted VIP prices", style: TextStyle(
                         fontSize: 16
                     ),),
@@ -92,7 +68,7 @@ class Profile extends StatelessWidget {
                     Text("Referral link", style: TextStyle(
                         fontSize: 16
                     ),),
-                    LinkLabel(labelText: "http://winninbets.co.ke/FE2123",),
+                    LinkLabel(labelText: "http://winninbets.co.ke/referral/${data['referral_code']}",),
                     SizedBox(height: 10,),
                     Container(
                       width: MediaQuery.of(context).size.width * 0.34,
@@ -108,6 +84,29 @@ class Profile extends StatelessWidget {
                               SvgPicture.asset('assets/icons/ic_copy.svg'),
                               SizedBox(width: 10,),
                               Text("Copy Link")
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 40,),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.45,
+                      height: 40,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                        child: FlatButton(
+                          padding: EdgeInsets.only(left: 25),
+                          color: Colors.black12,
+                          onPressed: () {
+                            var deleteToken = logout();
+                            if(deleteToken != null) {
+                              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LoginScreen()), (Route<dynamic> route) => false);
+                            }
+                          },
+                          child: Row(
+                            children: <Widget>[
+                              Text("Logout")
                             ],
                           ),
                         ),

@@ -18,13 +18,23 @@ import 'package:http/http.dart' as http;
 
 import 'HomeScreen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  var _isLoading = false;
+  var errorMessage = '';
+  var _incorrectLogin = false;
 
   var _email, _password = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: _isLoading ? Center(child: CircularProgressIndicator(strokeWidth: 2,),) : Container(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,6 +72,15 @@ class LoginScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
+                            _incorrectLogin ? Container(
+                              child: Text("Invalid Login credentials. Try again", style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.redAccent,
+                                  fontSize: 16
+                              ),),
+                              padding: EdgeInsets.only(top: 10, bottom: 10),
+                              width: MediaQuery.of(context).size.width,
+                            ) : Container(),
                             SizedBox(height: 10,),
                             InputLabel(labelText: "Enter your email address here"),
                             SizedBox(height: 7,),
@@ -78,6 +97,9 @@ class LoginScreen extends StatelessWidget {
                             LinkLabel(labelText: "Forgot password ?"),
                             Center(
                               child: ButtonRounded(text: "Login", onTap: () async{
+                                setState(() {
+                                  _isLoading = true;
+                                });
                                 var userToLogin = new UserLogin(_email, _password);
                                 var loginResponse = await http.post('${ApiUrl}users/login/', body: json.encode(userToLogin));
                                 if(loginResponse.statusCode == 200) {
@@ -85,11 +107,16 @@ class LoginScreen extends StatelessWidget {
 
                                   SharedPreferences prefs = await SharedPreferences.getInstance();
                                   await prefs.setString('token', authToken.token);
-                                  Navigator.push(context, MaterialPageRoute(
+                                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
                                     builder: (context){
-                                      return HomeScreen();
+                                      return HomeScreen();  
                                     }
-                                  ));
+                                  ), (Route<dynamic> route) => false);
+                                } else if(loginResponse.statusCode == 404) {
+                                  setState(() {
+                                    _isLoading = false;
+                                    _incorrectLogin = true;
+                                  });
                                 }
                               },),
                             ),
@@ -105,11 +132,11 @@ class LoginScreen extends StatelessWidget {
                                   SizedBox(width: 10,),
                                   Expanded(
                                     child: LinkLabel(labelText: "Register here", press: () {
-                                      Navigator.push(context, MaterialPageRoute(
+                                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(
                                         builder: (context) {
                                           return RegisterScreen();
                                         }
-                                      ));
+                                      ), (Route<dynamic> route) => false);
                                     }),
                                   )
                                 ],

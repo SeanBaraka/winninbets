@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:winninbets/constants/colors.dart';
+import 'package:winninbets/views/components/Subscribe.dart';
 
 class MenuItems extends StatelessWidget {
   @override
@@ -31,27 +32,7 @@ class MenuItems extends StatelessWidget {
                   fontWeight: FontWeight.w700
               ),),
               SizedBox(height: 10,),
-              Text("Subscribe now", style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700
-              ),),
-              SizedBox(height: 20,),
-              Container(
-                height: 50,
-                width: MediaQuery.of(context).size.width * 0.75,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(50)),
-                  child: RaisedButton(
-                    color: clrSuccess,
-                    onPressed: () {  },
-                    child: Text("Subscribe to VIP \$15/m", style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700
-                    ),),
-                  ),
-                ),
-              ),
+              Subscribe(),
               SizedBox(height: 20,),
               Text("Contact Us", style: TextStyle(
                   fontSize: 20,
@@ -91,7 +72,7 @@ class MenuItems extends StatelessWidget {
               ),),
               SizedBox(height: 20,),
               InkWell(
-                onTap: () => launch('https://t.me/suremaxbettips'),
+                onTap: () => launch('https://t.me/winninbet'),
                   child: SvgPicture.asset('assets/icons/ic_telegram.svg', width: 100,))
             ],
           ),
@@ -100,3 +81,4 @@ class MenuItems extends StatelessWidget {
     );
   }
 }
+

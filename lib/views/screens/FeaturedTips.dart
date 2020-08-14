@@ -16,6 +16,7 @@ class FeaturedTips extends StatefulWidget {
 }
 
 class _FeaturedTipsState extends State<FeaturedTips> {
+
   var date = DateTime.now();
 
   var response = getTips();
@@ -23,6 +24,8 @@ class _FeaturedTipsState extends State<FeaturedTips> {
   var totalOdds = "";
 
   var winAmount = 0;
+
+  int selectedCurrency = 0;
 
   var currencies = <DropdownMenuItem> [
     DropdownMenuItem(
@@ -78,10 +81,9 @@ class _FeaturedTipsState extends State<FeaturedTips> {
                       fontWeight: FontWeight.w700,
                       fontSize: 26
                     ),),
-                    Text("Today ${date}", style: TextStyle(
+                    Text("Today ${DateFormat('d MMM, yyyy').format(date)}", style: TextStyle(
                       fontSize: 14
                     ),),
-                    Text("Premier League"),
                     SizedBox(height: 30,),
                     FutureBuilder(
                       future: getFeatured(),
@@ -107,7 +109,7 @@ class _FeaturedTipsState extends State<FeaturedTips> {
                                   Expanded(
                                     child: Column(
                                       children: <Widget>[
-                                        Text(DateFormat('H:mm').format(DateTime.parse(data['match_date']))),
+                                        Text(DateFormat('d-MMM-yy H:mm').format(DateTime.parse(data['match_date']))),
                                         Text("vs"),
                                       ],
                                     ),
@@ -174,14 +176,15 @@ class _FeaturedTipsState extends State<FeaturedTips> {
                             itemCount: snapshot.data.length,
                             itemBuilder: (context, index) {
                               return LatestFixture(
+                                isVip: data[index]['is_vip_tip'],
                                 home_team:data[index]['home_team'],
                                 away_team:data[index]['away_team'],
                                 date:data[index]['match_date'],
                                 prediction:data[index]['prediction'],
                                 prediction_odds:data[index]['prediction_odds'],
                                 home_odds:data[index]['home_odds'],
-                                draw_odds:data[index]['draw_odds'],
-                                away_odds:data[index]['away_odds'],
+                                draw_odds:data[index]['away_odds'],
+                                away_odds:data[index]['draw_odds'],
                               );
                             });
                       } else {
@@ -235,10 +238,16 @@ class _FeaturedTipsState extends State<FeaturedTips> {
                                   children: <Widget>[
                                     ClipRect(
                                       child: DropdownButton(
-                                        value: currencies[0].value,
+                                        value: currencies[selectedCurrency].value,
                                         items: currencies,
                                         onChanged: (value) {
                                           // TODO: Change currencies
+                                          setState(() {
+
+                                            var item = currencies.where((element) => element.value == value).first;
+                                            var index = currencies.indexOf(item);
+                                            selectedCurrency = index;
+                                          });
                                       },
                                       ),
                                     ),
@@ -283,7 +292,7 @@ class _FeaturedTipsState extends State<FeaturedTips> {
                             fontWeight: FontWeight.w700
                           ),),
                           SizedBox(height: 5,),
-                          totalOdds != null && totalOdds.isNotEmpty ? Text('KES ${(winAmount* double.parse(totalOdds)).toString()}', style: TextStyle(
+                          totalOdds != null && totalOdds.isNotEmpty ? Text('${currencies[selectedCurrency].value} ${(winAmount* double.parse(totalOdds)).toString()}', style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w700
                           ),) : Text("--", style: TextStyle(

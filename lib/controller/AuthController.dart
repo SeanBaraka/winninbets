@@ -39,9 +39,14 @@ Future<dynamic> getUser() async{
   var token = await prefs.get('token');
 
   var response = await http.get('${ApiUrl}users/profile', headers: {
-    'Authorization': 'Bearer ${token}'
+    'Authorization': 'Bearer $token'
   });
-
   return json.decode(response.body);
 
+}
+
+Future<dynamic> logout() async {
+  var prefs = await SharedPreferences.getInstance();
+  var delete = await prefs.remove('token');
+  return "deleted";
 }

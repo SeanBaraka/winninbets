@@ -7,19 +7,36 @@ import 'views/screens/LoginScreen.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
-  bool _isAuth = false;
-  checkToken() async {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  static bool _isAuth = false;
+
+  Future<void> checkToken() async {
     var prefs = await SharedPreferences.getInstance();
     var token = await prefs.get('token');
-    if(token != null || token.toString().isNotEmpty) {
-      _isAuth = true;
+    if(token != null && token.toString().isNotEmpty) {
+      print('token $token');
+     setState(() {
+       _isAuth = true;
+     });
+    } else {
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (BuildContext context) => LoginScreen()), (Route<dynamic> route) => false);
+      return false;
     }
   }
-  // This widget is the root of your application.
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    checkToken();
+  }
+
   @override
   Widget build(BuildContext context) {
-    checkToken();
     return MaterialApp(
       title: 'Winninbets',
       debugShowCheckedModeBanner: false,
@@ -27,11 +44,7 @@ class MyApp extends StatelessWidget {
           ThemeData(primaryColor: clrPrimary,
               scaffoldBackgroundColor: clrBg,
               fontFamily: 'Visby CF',),
-      home: _isAuth == null ? Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ) : _isAuth == true ? HomeScreen() : LoginScreen(),
+      home: _isAuth == true ? HomeScreen() : LoginScreen(),
     );
   }
 }

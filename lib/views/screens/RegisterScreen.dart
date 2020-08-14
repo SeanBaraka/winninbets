@@ -22,11 +22,14 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   bool checkBoxValue = false;
   String _location, _telephone, _email, _firstname, _lastname, _password, _confirmpass = "";
+  var _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: _isLoading ? Center(
+        child: CircularProgressIndicator( strokeWidth: 2,),
+      ) : Container(
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -169,6 +172,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             Center(
                               child: ButtonRounded(text: "Sign up", onTap: () async {
+                                setState(() {
+                                  _isLoading = true;
+                                });
                                 if(_password == _confirmpass) {
                                   var user = new User(
                                     _firstname,_lastname,_location,_telephone,_email,_password
